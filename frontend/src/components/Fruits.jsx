@@ -34,6 +34,8 @@ const updateFruit = async () => {
         old_fruit: { name: selectedFruit.name },
         new_fruit: { name: updatedName }
       });
+      fetchFruits(); // Refresh the list
+
       setUpdatedName('');
       setSelectedFruit(null);
 
