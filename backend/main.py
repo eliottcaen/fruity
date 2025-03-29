@@ -9,7 +9,6 @@ from fastapi import HTTPException
 
 class Fruit(BaseModel):
     name : str
-    category : str
 
 class Fruits(BaseModel):
     fruits:List[Fruit]
@@ -33,8 +32,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-memorydb = {"fruits":[],
-            "categories":[]}
+memorydb = {"fruits":[]}
 
 @app.get("/fruits",response_model =Fruits)
 def get_fruits():
