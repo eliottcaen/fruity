@@ -5,13 +5,17 @@ import AddFruitForm from './AddFruitForm';
 const FruitList = () => {
   const [fruits, setFruits] = useState([]);
   const [selectedFruit, setSelectedFruit] = useState(null);
+  useEffect(() => {
+  console.log("🍌 selectedFruit changed:", selectedFruit);
+}, [selectedFruit]);
   const [updatedName, setUpdatedName] = useState('');
 
   // Fetch fruits from backend
   const fetchFruits = async () => {
     try {
       const response = await api.get('/fruits');
-      setFruits(response.data.fruits);
+      console.log("🔍 GET response:", response.data);
+      setFruits(response.data.data);
     } catch (error) {
       console.error("Error fetching fruits", error);
     }
@@ -31,8 +35,8 @@ const updateFruit = async () => {
   if (selectedFruit && updatedName) {
     try {
       const response = await api.put('http://localhost:8000/fruits', {
-        old_fruit: { name: selectedFruit.name },
-        new_fruit: { name: updatedName }
+        id: selectedFruit.id,
+        new_name: updatedName
       });
       fetchFruits(); // Refresh the list
 
