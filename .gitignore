@@ -1,3 +1,5 @@
 backend/venv/
 .idea/
 backend/testmongo.py
+__pycache__/
+*.pyc
