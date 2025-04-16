@@ -9,30 +9,46 @@ API_URL = "http://localhost:8000/fruits"
 st.title("Fruits list")
 st.image(os.path.join(os.getcwd(), "../backend/static", "img.png"), width = 500)
 def get_fruits():
-    response = requests.get(API_URL)
-    fruits = response.json()["data"]
-    return fruits
+    try:
+        response = requests.get(API_URL)
+        response.raise_for_status()  # Raise an error if the status is 4xx or 5xx
+        fruits = response.json()["data"]
+        return fruits
+    except requests.exceptions.RequestException as e:
+        st.error(f"Erreur de connexion à l'API: {str(e)}")
+        return []
 
-def delete_fruit(id):
-    response = requests.delete(API_URL+"/"+id)
-    if response.status_code == 200:
+
+def add_fruit(fruit_name: str):
+    try:
+        response = requests.post(API_URL, json={"name": fruit_name})
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        return {"status": "error", "message": str(e)}
+
+def delete_fruit(id: str):
+    try:
+        response = requests.delete(API_URL+"/"+id)
+        response.raise_for_status() # Raise an error if the status is 4xx or 5xx
         fruit = response.text
         st.session_state.fruit_deleted = fruit
-    return response
+
+    except requests.exceptions.RequestException as e:
+        st.error(f"Erreur lors de la suppression du fruit : {e}")
 
 def edit_fruit(id,new_name):
-    print('start')
     update_fruit_request = {
         "id": id,
         "new_name": new_name
       }
-    print(update_fruit_request)
-    response = requests.put(API_URL,json = update_fruit_request)
-    print(response)
-    if response.status_code == 200:
+    try:
+        response = requests.put(API_URL,json = update_fruit_request)
+        response.raise_for_status()
         fruit = response.text
         st.session_state.fruit_edited = fruit
-    return response
+    except requests.exceptions.RequestException as e:
+        st.error(f"Erreur lors de la modification du fruit : {e}")
 
 def display_fruits(fruits):
     if fruits:
@@ -72,6 +88,8 @@ def display_fruits(fruits):
                                 # After submission, set the editing state to False
                                 st.session_state["editing_" + fruit["id"]] = False
                                 st.rerun()
+                            else:
+                                st.warning("Please write a new name")
 
     else:
         st.write("Aucun fruit à afficher.")
@@ -101,12 +119,12 @@ with st.form(key="add_a_fruit"):
 
     if submit_button:
         if new_fruit != "":
-            response = requests.post(API_URL, json={"name":new_fruit})
-            if response.status_code == 200:
+            response = add_fruit(new_fruit)
+            if response["status"] == "ok":
                 st.session_state.fruit_added = new_fruit
+                st.success(f"Fruit {new_fruit} added successfully!")
                 st.rerun()
             else:
                 st.error("Failed to add fruit")
-
         else:
             st.warning("Please enter a new fruit")

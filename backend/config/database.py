@@ -1,5 +1,6 @@
 
 from pymongo.mongo_client import MongoClient
+from pymongo import errors
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
 import os
@@ -24,3 +25,16 @@ except Exception as e:
 db = client.fruits_application
 
 collection_name = db["fruits_app"]
+
+def check_mongo_connection():
+    """ Function to test the MongoDB connection
+    """
+    try:
+        client.admin.command('ping')
+        return {"status": "ok"}
+    except errors.ServerSelectionTimeoutError:
+        return {"status": "error", "detail": "MongoDB server selection timeout"}
+    except errors.ConnectionFailure:
+        return {"status": "error", "detail": "MongoDB connection failure"}
+    except Exception as e:
+        return {"status": "error", "detail": f"Unexpected error: {str(e)}"}
