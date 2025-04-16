@@ -1,54 +1,15 @@
 import streamlit as st
-import requests
 import os
+from class_fruit import Fruit
 
 
 # URL de l'API FastAPI
 API_URL = "http://localhost:8000/fruits"
+fruit_api = Fruit(API_URL)
 
 st.title("Fruits list")
 st.image(os.path.join(os.getcwd(), "../backend/static", "img.png"), width = 500)
-def get_fruits():
-    try:
-        response = requests.get(API_URL)
-        response.raise_for_status()  # Raise an error if the status is 4xx or 5xx
-        fruits = response.json()["data"]
-        return fruits
-    except requests.exceptions.RequestException as e:
-        st.error(f"Erreur de connexion à l'API: {str(e)}")
-        return []
 
-
-def add_fruit(fruit_name: str):
-    try:
-        response = requests.post(API_URL, json={"name": fruit_name})
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        return {"status": "error", "message": str(e)}
-
-def delete_fruit(id: str):
-    try:
-        response = requests.delete(API_URL+"/"+id)
-        response.raise_for_status() # Raise an error if the status is 4xx or 5xx
-        fruit = response.text
-        st.session_state.fruit_deleted = fruit
-
-    except requests.exceptions.RequestException as e:
-        st.error(f"Erreur lors de la suppression du fruit : {e}")
-
-def edit_fruit(id,new_name):
-    update_fruit_request = {
-        "id": id,
-        "new_name": new_name
-      }
-    try:
-        response = requests.put(API_URL,json = update_fruit_request)
-        response.raise_for_status()
-        fruit = response.text
-        st.session_state.fruit_edited = fruit
-    except requests.exceptions.RequestException as e:
-        st.error(f"Erreur lors de la modification du fruit : {e}")
 
 def display_fruits(fruits):
     if fruits:
@@ -59,7 +20,7 @@ def display_fruits(fruits):
                 st.write(fruit["name"])
 
             with col2:
-                delete_button = st.button(f"Delete", key="delete"+fruit["id"], on_click=delete_fruit, args=(fruit["id"],))
+                delete_button = st.button(f"Delete", key="delete"+fruit["id"], on_click=fruit_api.delete_fruit, args=(fruit["id"],))
 
             with col3:
                 # Check if we are currently editing this fruit
@@ -84,7 +45,7 @@ def display_fruits(fruits):
                             if new_name:
                                 print(new_name)
                                 # Call the function to edit the fruit
-                                edit_fruit(fruit["id"], new_name)
+                                fruit_api.edit_fruit(fruit["id"], new_name)
                                 # After submission, set the editing state to False
                                 st.session_state["editing_" + fruit["id"]] = False
                                 st.rerun()
@@ -96,7 +57,7 @@ def display_fruits(fruits):
 
 
 
-fruits = get_fruits()
+fruits = fruit_api.get_fruits()
 display_fruits(fruits)
 
 if "fruit_deleted" in st.session_state:
@@ -119,7 +80,7 @@ with st.form(key="add_a_fruit"):
 
     if submit_button:
         if new_fruit != "":
-            response = add_fruit(new_fruit)
+            response = fruit_api.add_fruit(new_fruit)
             if response["status"] == "ok":
                 st.session_state.fruit_added = new_fruit
                 st.success(f"Fruit {new_fruit} added successfully!")
