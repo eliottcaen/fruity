@@ -1,7 +1,6 @@
 
 from pymongo.mongo_client import MongoClient
 from pymongo import errors
-from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
 import os
 
