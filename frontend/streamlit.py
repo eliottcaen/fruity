@@ -1,14 +1,15 @@
-import streamlit as st
 import os
+import streamlit as st
 from class_fruit import Fruit
 
 
 # URL de l'API FastAPI
-API_URL = "http://localhost:8000/fruits"
+API_URL = "http://backend:8000/fruits"
 fruit_api = Fruit(API_URL)
 
 st.title("Fruits list")
-st.image(os.path.join(os.getcwd(), "../backend/static", "img.png"), width = 500)
+
+st.image(os.path.join(os.getcwd(), "static", "img.png"), width = 500)
 
 
 def display_fruits(fruits):
