@@ -5,4 +5,4 @@ __pycache__/
 *.pyc
 backend/test.py
 backend/test2.py
-
+requirements.txt
