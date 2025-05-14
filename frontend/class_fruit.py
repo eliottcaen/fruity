@@ -12,9 +12,14 @@ class Fruit:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Erreur de connexion à l'API: {str(e)}")
 
-    def add_fruit(self, fruit_name: str):
+    def add_fruit(self, fruit_name: str, price: float, supermarket: str):
         try:
-            response = requests.post(self.api_url, json={"name": fruit_name})
+            # Sending the name, price, and supermarket along with the request
+            response = requests.post(self.api_url, json={
+                "name": fruit_name,
+                "price": price,
+                "supermarket": supermarket
+            })
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -24,15 +29,18 @@ class Fruit:
         try:
             response = requests.delete(f"{self.api_url}/{fruit_id}")
             response.raise_for_status()
-            return response.text
+            # Assuming the API returns a JSON with a status key
+            return response.json()
         except requests.exceptions.RequestException as e:
             raise Exception(f"Erreur lors de la suppression du fruit: {str(e)}")
 
-    def edit_fruit(self, fruit_id: str, new_name: str):
+    def edit_fruit(self, fruit_id: str, updated_fields: dict):
         try:
-            update_fruit_request = {"id": fruit_id, "new_name": new_name}
-            response = requests.put(self.api_url, json=update_fruit_request)
+            payload = {"id": fruit_id}
+            payload.update(updated_fields)  # Include only the fields to update
+            print("Payload:", payload)
+            response = requests.patch(self.api_url, json=payload)
             response.raise_for_status()
-            return response.text
+            return response.json()
         except requests.exceptions.RequestException as e:
             raise Exception(f"Erreur lors de la modification du fruit: {str(e)}")

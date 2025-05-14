@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from routes.fruits_routes import fruit_api_router
-from config.database import  check_mongo_connection
+from config.database import check_mongo_connection
 
 app = FastAPI()
 app.include_router(fruit_api_router, prefix="/fruits")

@@ -1,0 +1,124 @@
+{
+    "20250510144922": [
+        {
+            "status": "started",
+            "when": "2025-05-10 14:49:22.763937+03:00",
+            "limit": 1,
+            "files_requested": [
+                "PROMO_FILE",
+                "STORE_FILE",
+                "PRICE_FILE",
+                "PROMO_FULL_FILE",
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": "2025-05-10 14:49:22.026983+03:00",
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2025-05-10 14:49:23.042930+03:00",
+            "file_name_collected_from_site": [
+                "StoresFull7290875100001-000-202505100524"
+            ],
+            "links_collected_from_site": [
+                "http://superbareket.binaprojects.com//Download.aspx?FileNm=StoresFull7290875100001-000-202505100524.gz"
+            ]
+        },
+        {
+            "status": "downloaded",
+            "when": "2025-05-10 14:49:23.778974+03:00",
+            "results": [
+                {
+                    "file_name": "StoresFull7290875100001-000-202505100524",
+                    "downloaded": true,
+                    "extract_succefully": true,
+                    "error": null,
+                    "restart_and_retry": false
+                }
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2025-05-10 14:49:23.780764+03:00",
+            "folder_size": {
+                "size": 0.004773139953613281,
+                "unit": "MB",
+                "folder": "dumps/Bareket",
+                "folder_content": [
+                    "dumps/Bareket/StoresFull7290875100001-000-202505100524.aspx.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ],
+    "20250510145130": [
+        {
+            "status": "started",
+            "when": "2025-05-10 14:51:30.739053+03:00",
+            "limit": 1,
+            "files_requested": [
+                "PROMO_FILE",
+                "STORE_FILE",
+                "PRICE_FILE",
+                "PROMO_FULL_FILE",
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": "2025-05-10 14:51:29.925657+03:00",
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2025-05-10 14:51:30.848239+03:00",
+            "file_name_collected_from_site": [
+                "StoresFull7290875100001-000-202505100524"
+            ],
+            "links_collected_from_site": [
+                "http://superbareket.binaprojects.com//Download.aspx?FileNm=StoresFull7290875100001-000-202505100524.gz"
+            ]
+        },
+        {
+            "status": "downloaded",
+            "when": "2025-05-10 14:51:31.467073+03:00",
+            "results": [
+                {
+                    "file_name": "StoresFull7290875100001-000-202505100524",
+                    "downloaded": true,
+                    "extract_succefully": true,
+                    "error": null,
+                    "restart_and_retry": false
+                }
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2025-05-10 14:51:31.469488+03:00",
+            "folder_size": {
+                "size": 0.004773139953613281,
+                "unit": "MB",
+                "folder": "dumps/Bareket",
+                "folder_content": [
+                    "dumps/Bareket/StoresFull7290875100001-000-202505100524.aspx.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ],
+    "verified_downloads": [
+        {
+            "file_name": "StoresFull7290875100001-000-202505100524",
+            "when": "2025-05-10 14:49:23.779748+03:00"
+        },
+        {
+            "file_name": "StoresFull7290875100001-000-202505100524",
+            "when": "2025-05-10 14:51:31.468016+03:00"
+        }
+    ]
+}

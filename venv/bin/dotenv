@@ -1,4 +1,4 @@
-#!/Users/eliott.caen/PycharmProjects/ITC_Python/mini_project_fastapi/backend/venv/bin/python3.11
+#!/Users/eliott.caen/PycharmProjects/ITC_Python/mini_project_fastapi/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
