@@ -23,8 +23,11 @@ except Exception as e:
 
 db = client.fruits_application
 
-collection_name = db["fruits_app"]
+# collection_name = db["fruits_app"]
 
+# Collections
+products_collection = db["products"]
+queries_collection = db["queries"]
 def check_mongo_connection():
     """ Function to test the MongoDB connection
     """

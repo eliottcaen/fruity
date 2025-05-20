@@ -2,7 +2,7 @@ import requests
 import json
 
 url = "https://api-to-find-grocery-prices.p.rapidapi.com/amazon"
-querystring = {"query": "broccoli", "country": "us", "page": "1"}
+querystring = {"query": "broccolis", "country": "us", "page": "1"}
 
 headers = {
     "x-rapidapi-host": "api-to-find-grocery-prices.p.rapidapi.com",

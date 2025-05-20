@@ -6,3 +6,5 @@ __pycache__/
 backend/test.py
 backend/test2.py
 requirements.txt
+venv/
+

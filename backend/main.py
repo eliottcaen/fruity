@@ -1,10 +1,15 @@
 import uvicorn
 from fastapi import FastAPI
-from routes.fruits_routes import fruit_api_router
+from routes.product_routes import product_api_router
 from config.database import check_mongo_connection
+from routes.query_routes import query_api_router
+
+
 
 app = FastAPI()
-app.include_router(fruit_api_router, prefix="/fruits")
+app.include_router(product_api_router, prefix="/products")
+app.include_router(query_api_router, prefix="/queries")
+
 
 @app.get("/")
 def read_root():
