@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from config.database import products_collection, queries_collection
 from models.product_model import Product, ProductOut, UpdateProductRequest
-from schemas.product_schemas import product_helper, products_helper
+from schemas.product_schemas import product_from_db, products_from_db
 from bson import ObjectId
 
 product_api_router = APIRouter()
 
 @product_api_router.get("/")
 async def get_products():
-    products = products_helper(products_collection.find())
+    products = products_from_db(products_collection.find())
     return {"status": "ok", "data": products}
 
 @product_api_router.post("/")
@@ -77,7 +77,7 @@ async def delete_product(id: str):
         raise HTTPException(status_code=400, detail="Product id is required")
 
     try:
-        product = product_helper(products_collection.find_one({"_id": ObjectId(id)}))
+        product = product_from_db(products_collection.find_one({"_id": ObjectId(id)}))
         products_collection.delete_one({"_id": ObjectId(id)})
         return {
             "status": "ok",
