@@ -1,114 +1,84 @@
 import os
+import requests
 import streamlit as st
-from class_fruit import Fruit
 
-# URL of the FastAPI backend
-# API_URL = "http://localhost:8000/fruits"  # Running locally
-API_URL = "http://backend:8000/fruits"
+API_BASE_URL = "http://backend:8000"
 
-
-fruit_api = Fruit(API_URL)
-
-st.title("Fruits List")
-
-# Display an image at the top of the page
+st.title("Grocery Product Search")
 st.image(os.path.join(os.getcwd(), "static", "img.png"), width=500)
 
 
-# Display Fruits in a free-floating style with Edit and Delete buttons
-def display_fruits(fruits):
-    if fruits:
-        for fruit in fruits:
-            # Create a row with columns for each piece of fruit info and buttons
-            col1, col2, col3, col4 = st.columns([1, 1, 1, 1])  # Adjust column sizes as needed
-            with col1:
-                st.write(f"**{fruit['name']}**")
-            with col2:
-                st.write(f"Price: {fruit.get('price', 'N/A')}")
-            with col3:
-                st.write(f"Supermarket: {fruit.get('supermarket', 'N/A')}")
-            with col4:
-                # Add Edit and Delete buttons next to each fruit
-                edit_button = st.button(f"Edit {fruit['name']}", key=f"edit_{fruit['id']}")
-                delete_button = st.button(f"Delete {fruit['name']}", key=f"delete_{fruit['id']}")
 
-                if edit_button:
-                    # Trigger editing for this fruit
-                    st.session_state["editing_fruit_id"] = fruit['id']
-                    st.session_state["editing_fruit"] = fruit
-                    st.rerun()  # Rerun to display the editing form
+# Inputs
+search_term = st.text_input("Enter product name (e.g. tomato, apple, broccoli)")
+supermarket = st.selectbox("Select supermarket", options=["amazon"])
 
-                if delete_button:
-                    response = fruit_api.delete_fruit(fruit['id'])
-                    print('ici', response)
-                    if response["status"] == "ok":
-                        st.session_state["fruit_deleted"] = fruit['name']
-                        st.rerun()
-                    else:
-                        st.error("Failed to delete fruit")
+# Define helper functions outside the if block
 
-    else:
-        st.write("No fruits available.")
+def query_already_searched(search_term: str, supermarket: str) -> bool:
+    try:
+        response = requests.get(f"{API_BASE_URL}/queries/")
+        response.raise_for_status()
+        queries = response.json().get("data", [])
+        return any(q["search_term"] == search_term and q["supermarket"] == supermarket for q in queries)
+    except requests.RequestException as e:
+        st.error(f"Error checking query: {e}")
+        return False
 
+def fetch_products_from_db(search_term: str, supermarket: str):
+    try:
+        response = requests.get(
+            f"{API_BASE_URL}/products/product",
+            params={"tags": search_term, "supermarket": supermarket}
+        )
+        response.raise_for_status()
+        return response.json().get("data", [])
+    except requests.RequestException as e:
+        st.error(f"Error fetching products from DB: {e}")
+        return []
 
-# Edit Fruit Form
-def edit_fruit_form(fruit):
-    st.subheader("Edit Fruit Details")
-    with st.form(key="edit_fruit_form"):
-        new_name = st.text_input("Fruit Name", value=fruit['name'])
-        new_price = st.number_input("Price", min_value=0.0, value=fruit.get('price', 0.0))
-        new_supermarket = st.text_input("Supermarket", value=fruit.get('supermarket', ''))
+def trigger_search(search_term: str, supermarket: str):
+    try:
+        payload = {
+            "search_term": search_term,
+            "supermarket": supermarket
+        }
+        response = requests.post(
+            f"{API_BASE_URL}/search/search",
+            json=payload  # Send JSON body
+        )
+        response.raise_for_status()
+        return response.json().get("results", [])
+    except requests.RequestException as e:
+        st.error(f"Error triggering search: {e}")
+        return []
 
-        submit_button = st.form_submit_button(label="Save Changes")
-        if submit_button:
-            if new_name and new_price >= 0:
-                updated_fruit = {"new_name": new_name, "new_price": new_price, "new_supermarket": new_supermarket}
-                response = fruit_api.edit_fruit(fruit['id'], updated_fruit)
-                if response["status"] == "ok":
-                    # Close the editing panel after successful update
-                    st.session_state["editing_fruit_id"] = None  # Reset the editing session
-                    st.session_state["editing_fruit"] = None  # Reset the fruit data being edited
-                    st.session_state["fruit_updated"] = new_name
-                    st.rerun()  # Refresh the page to reflect the update
-                else:
-                    st.error("Failed to update fruit")
-            else:
-                st.warning("Please fill in all fields correctly.")
-
-
-# If an editing session exists, show the form
-if "editing_fruit_id" in st.session_state and st.session_state["editing_fruit_id"]:
-    fruit_to_edit = st.session_state["editing_fruit"]
-    edit_fruit_form(fruit_to_edit)
-
-# Display Fruits List
-fruits = fruit_api.get_fruits()
-display_fruits(fruits)
-
-# Feedback after actions
-if "fruit_deleted" in st.session_state:
-    st.success(f"{st.session_state['fruit_deleted']} was deleted successfully.")
-    del st.session_state["fruit_deleted"]
-
-if "fruit_updated" in st.session_state:
-    st.success(f"{st.session_state['fruit_updated']} was updated successfully.")
-    del st.session_state["fruit_updated"]
-
-# Add a new fruit form
-with st.form(key="add_a_fruit"):
-    st.header("Add a New Fruit")
-    new_fruit_name = st.text_input("Enter the name of a new fruit")
-    new_fruit_price = st.number_input("Enter the price", min_value=0.0, value=0.0)
-    new_fruit_supermarket = st.text_input("Enter the supermarket name")
-
-    add_fruit_button = st.form_submit_button("Add Fruit")
-    if add_fruit_button:
-        if new_fruit_name and new_fruit_price >= 0:
-            response = fruit_api.add_fruit(new_fruit_name, new_fruit_price, new_fruit_supermarket)
-            if response["status"] == "ok":
-                st.session_state["fruit_added"] = new_fruit_name
-                st.rerun()
-            else:
-                st.error("Failed to add fruit.")
+# Button logic
+if st.button("Search"):
+    if search_term and supermarket:
+        if query_already_searched(search_term, supermarket):
+            st.info("Query already exists — loading from database")
+            products = fetch_products_from_db(search_term, supermarket)
         else:
-            st.warning("Please fill in all fields correctly.")
+            st.info("New query — calling external API")
+            products = trigger_search(search_term, supermarket)
+
+        # Display products 3 per row
+        if products:
+            st.subheader(f"Results for '{search_term}' from {supermarket}")
+            for i in range(0, len(products), 3):
+                cols = st.columns(3)
+                for j in range(3):
+                    if i + j < len(products):
+                        product = products[i + j]
+                        with cols[j]:
+                            image_url = product.get("image_url")
+                            if image_url:
+                                st.image(image_url, width=150)
+                            st.markdown(f"**{product.get('name', 'Unnamed')}**")
+                            st.write(f"Price: {product.get('price', 'N/A')}")
+
+        else:
+            st.warning("No products found.")
+    else:
+        st.warning("Please enter a product name and select a supermarket.")
