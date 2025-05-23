@@ -1,15 +1,19 @@
 import requests
 from typing import List, Dict, Any
-#from config.database import products_collection
-#from schemas.product_schemas import product_from_api, product_from_db
+from config.database import products_collection, queries_collection
+from schemas.product_schemas import product_from_api, product_from_db
+from datetime import datetime
 
 
-def fetch_products_from_api(query: str) -> List[Dict[str, Any]]:
+def fetch_products_from_api(search_term: str,supermarket:str ) -> Dict[str, Any]:
     """
     Call external API and return raw product results list.
     """
-    url = "https://api-to-find-grocery-prices.p.rapidapi.com/amazon"
-    querystring = {"query": query, "country": "us", "page": "1"}
+    if supermarket not in ['amazon']:
+        raise Exception(f"{supermarket} not in the list [amazon]")
+
+    url = f"https://api-to-find-grocery-prices.p.rapidapi.com/{supermarket}"
+    querystring = {"query": search_term, "country": "us", "page": "1"}
     headers = {
         "x-rapidapi-host": "api-to-find-grocery-prices.p.rapidapi.com",
         "x-rapidapi-key": "64bf2b5510mshf45d3c72715ca7ep1fa095jsn7613ffd147d6"
@@ -20,14 +24,20 @@ def fetch_products_from_api(query: str) -> List[Dict[str, Any]]:
         raise Exception(f"API error: {response.status_code}")
 
     data = response.json()
-    return data.get("results", data)
+    try:
+        print(response.json())
+        return data.get("products", data)
+    except (KeyError, TypeError):
+        raise ValueError(f"Unexpected API response structure: {data}")
 
-def store_or_update_products(api_products: List[Dict[str, Any]], tag: str, supermarket="amazon") -> List[Dict[str, Any]]:
+
+def store_or_update_products(api_products: List[Dict[str, Any]], tag: str, supermarket: str) -> List[Dict[str, Any]]:
     """
     Insert new products or update existing products with new tags in MongoDB.
 
     Returns formatted products from DB.
     """
+
     results = []
 
     for item in api_products:
@@ -53,7 +63,13 @@ def store_or_update_products(api_products: List[Dict[str, Any]], tag: str, super
 
     return results
 
-def search_and_store_products(query: str) -> List[Dict[str, Any]]:
-    api_products = fetch_products_from_api(query)
-    return store_or_update_products(api_products, tag=query)
+def search_and_store_products(search_term: str, supermarket: str) -> List[Dict[str, Any]]:
+    queries_collection.insert_one({
+        "search_term": search_term,
+        "supermarket": supermarket,
+        "timestamp": datetime.utcnow()
+    })
+
+    api_products = fetch_products_from_api(search_term, supermarket)
+    return store_or_update_products(api_products, supermarket = supermarket, tag=search_term)
 

@@ -11,6 +11,24 @@ async def get_products():
     products = products_from_db(products_collection.find())
     return {"status": "ok", "data": products}
 
+
+from fastapi import HTTPException
+
+
+@product_api_router.get("/product")
+async def get_products(tags: str, supermarket: str):
+    products_cursor = products_collection.find({
+        "tags": tags,  # matches if tag is in the list
+        "supermarket": supermarket
+    })
+    products = products_from_db(products_cursor)
+
+    if not products:
+        raise HTTPException(status_code=404, detail="No products found")
+
+    return {"status": "ok", "data": products}
+
+
 @product_api_router.post("/")
 async def add_product(product: Product):
     if product.name == "":

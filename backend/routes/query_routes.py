@@ -24,6 +24,7 @@ async def add_query(query: Query):
             "data": {
                 "id": str(result.inserted_id),
                 "search_term": query_data["search_term"],
+                "supermarket": query_data["supermarket"],
                 "timestamp": query_data["timestamp"]
             }
         }

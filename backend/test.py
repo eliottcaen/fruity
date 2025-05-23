@@ -10,6 +10,8 @@ headers = {
 }
 
 response = requests.get(url, headers=headers, params=querystring)
+print("Status code:", response.status_code)
+print("Response JSON:", response.json())
 
 # Pretty print the response
 if response.status_code == 200:
